@@ -1,0 +1,97 @@
+switch:
+  - platform: gpio
+    id: heater_1
+    name: "Heater"
+    pin: ${MOSFET_GATE_PIN}
+    on_turn_on:
+      then:
+        - lambda: |-
+            time_t now;
+            time(&now);
+
+            id(turn_on_time) = now;
+    on_turn_off:
+      then:
+        - lambda: |-
+            id(turn_on_time) = 0;
+
+sensor:
+  - platform: template
+    id: error_code
+    name: "Error Code"
+
+globals:
+  - id: turn_on_time
+    type: time_t
+    restore_value: no
+    initial_value: "0"
+
+# https://esphome.io/components/interval
+interval:
+  # Set heater state based on temperature
+  - id: heater_on_interval
+    interval: 0.5s
+    then:
+      - lambda: |-
+          if(!check("Automatic", true)) {
+            return;
+          }
+
+          // update temperature
+          // id(ntc_voltage_1)->update();
+
+          auto heater = id(heater_1);
+          float temp = id(ntc_temp_1)->state;
+          float off_temp = id(turn_off_temp).state;
+
+          if (temp > off_temp) {
+            heater->turn_off();
+          }
+
+  - id: heater_off_interval
+    interval: 2s
+    then:
+      - lambda: |-
+          if(!check("Automatic", false)) {
+            return;
+          }
+
+          // update temperature
+          // id(ntc_voltage_1)->update();
+
+          auto heater = id(heater_1);
+          float temp = id(ntc_temp_1)->state;
+          float on_temp = id(turn_on_temp).state;
+
+          if (!heater->state && temp < on_temp) {
+            heater->turn_on();
+          }
+
+  # Watchdog:
+  - id: watchdog_1
+    interval: 0.5s
+    then:
+      - lambda: |-
+          auto heater = id(heater_1);
+          auto error = id(error_code);
+          time_t now;
+          time(&now);
+
+          if (!heater->state) {
+            // Heater is OFF, no danger
+            return;
+          }
+
+          // Make sure heater does not run longer than max_heating_time
+          double seconds = difftime(now, id(turn_on_time));
+          if (id(max_heating_time) != 0 && seconds > id(max_heating_time)) {
+            heater->turn_off();
+            error->publish_state(1);
+          }
+
+          // check if heater is over max_temp
+          float temp = id(ntc_temp_1)->state;
+          if (id(max_temp) != 0 && temp > id(max_temp)) {
+            heater->turn_off();
+            error->publish_state(2);
+          }

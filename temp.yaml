@@ -1,0 +1,32 @@
+sensor:
+  # https://esphome.io/components/sensor/adc.html
+  - platform: adc
+    id: ntc_voltage_1
+    pin: ${NTC_PIN}
+    internal: true
+    update_interval: 0.5s
+    attenuation: 12db
+    samples: 16
+
+  # https://esphome.io/components/sensor/resistance
+  - platform: resistance
+    id: ntc_resistance_1
+    sensor: ntc_voltage_1
+    configuration: UPSTREAM
+    resistor: 100.9kOhm
+    name: Resistance Sensor
+    internal: true
+
+  # https://esphome.io/components/sensor/ntc.html
+  - platform: ntc
+    id: ntc_temp_1
+    name: "NTC Temperature"
+    sensor: ntc_resistance_1
+    calibration:
+      # b_constant: 3950
+      # reference_temperature: 25°C
+      # reference_resistance: 100kOhm
+      - 219kOhm -> 9°C
+      - 106.6kOhm -> 25°C
+      - 22.7kOhm -> 59°C
+    

@@ -1,0 +1,41 @@
+# https://esphome.io/components/select/template.html
+select:
+  - platform: template
+    id: mode
+    name: Mode
+    options:
+     - "Manual"
+     - "Automatic"
+    initial_option: "Manual"
+    optimistic: true
+    restore_value: true
+    on_value:
+      then:
+        - lambda: |-
+            auto heater = id(heater_1);
+            auto error = id(error_code);
+            heater->turn_off();
+            error->publish_state(0);
+
+# https://esphome.io/components/number/template
+number:
+  - platform: template
+    id: turn_on_temp
+    name: Turn on Temperature
+    initial_value: 25
+    optimistic: true
+    step: 0.5
+    min_value: 10
+    max_value: 60
+    restore_value: true
+
+  - platform: template
+    id: turn_off_temp
+    name: Turn off Temperature
+    optimistic: true
+    step: 0.5
+    initial_value: 45
+    min_value: 10
+    max_value: 60
+    restore_value: true
+

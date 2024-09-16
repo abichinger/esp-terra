@@ -1,0 +1,68 @@
+esphome:
+  name: esp-terra
+  friendly_name: ESP Terra
+  includes: 
+    - std_includes.h
+    - util.h
+  on_boot:
+    then:
+      - lambda: |-
+          if (id(max_heating_time) == 0) {
+            ESP_LOGW("ESP Terra", "Fire hazard detected: Please set max_heating_time != 0");
+          }
+          if (id(max_temp) == 0) {
+            ESP_LOGW("ESP Terra", "Fire hazard detected: Please set max_temp != 0");
+          }
+
+substitutions:
+  NAME: ESP Terra
+  # TODO: select pins
+  MOSFET_GATE_PIN: "GPIO32"
+  NTC_PIN: "GPIO34"
+  
+
+globals:
+  # The maximum time the heater can be on in seconds
+  # If this limit is exceeded, esp_terra will recognise this a hard failure and goes into standby mode
+  - id: max_heating_time
+    type: double
+    restore_value: no
+    initial_value: "15"
+  - id: max_temp
+    type: double
+    restore_value: no
+    initial_value: "100"
+
+packages:
+  wifi: !include wifi.yaml
+  mode: !include settings.yaml
+  temp: !include temp.yaml
+  heater: !include heater.yaml
+
+# Enable Home Assistant API
+api:
+  reboot_timeout: 30min
+
+web_server:
+  port: 80
+  #log: false
+
+esp32:
+  board: nodemcu-32s
+  framework:
+    type: esp-idf
+    version: recommended #latest
+    sdkconfig_options:
+      CONFIG_COMPILER_OPTIMIZATION_SIZE: y
+
+ota:
+  platform: esphome
+
+logger:
+  level: DEBUG #NONE# ERROR #INFO #DEBUG  #VERBOSE
+  # baud_rate: 0 #to disable logging via UART
+  logs:
+    sensor: DEBUG
+    resistance: DEBUG
+    ntc: DEBUG
+

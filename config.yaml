@@ -2,8 +2,8 @@ esphome:
   name: esp-terra
   friendly_name: ESP Terra
   includes: 
-    - std_includes.h
-    - util.h
+    - src/std_includes.h
+    - src/util.h
   on_boot:
     then:
       - lambda: |-
@@ -34,10 +34,10 @@ globals:
     initial_value: "100"
 
 packages:
-  wifi: !include wifi.yaml
-  mode: !include settings.yaml
-  temp: !include temp.yaml
-  heater: !include heater.yaml
+  wifi: !include src/wifi.yaml
+  mode: !include src/settings.yaml
+  temp: !include src/temp.yaml
+  heater: !include src/heater.yaml
 
 # Enable Home Assistant API
 api:

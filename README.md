@@ -5,13 +5,18 @@
 Control your terrarium's temperature and light with an ESP32.
 This software is powered by [ESPHome](https://github.com/esphome/esphome)
 
+# Folder structure
+
+- [**radiator**](./radiator/README.md) - 3D printable terrarium radiator
+- **src** - ESPHome config files
+
 ## Safety notice
 
-Use this software at your own risk. This project uses a 3D Printer's hotend to heat the terrarium. The hotend could catch something on fire or harm your pet. 
+Use this software at your own risk. This project uses a 3D Printer's hotend to heat a terrarium. The hotend could catch something on fire or harm your pet. 
 
 ### Security measures
 
-The following limits can be set to make it a bit safer.
+The following limits can be set inside [`config.yml`](./config.yaml) to make it a bit safer.
 
 - `max_heading_time`(default: 15s): The maximum time the hotend can be switched on
 - `max_temp`(default: 100°C): Maximum temperature of the hotend
